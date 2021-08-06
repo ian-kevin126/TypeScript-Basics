@@ -74,3 +74,92 @@ const sumFun: SumInterface = function (x: number, y: number | undefined): number
 }
 
 // 6，混合类型接口：约定的内容里既有属性又有方法
+// let count = 0;
+// function addCount() {
+//   count++;
+// }
+// addCount();
+// addCount();
+// addCount();
+// console.log(count); // 3   但是这种方式定义了全局变量，污染全局空间
+
+// 改用闭包实现
+const addCount = (function () {
+  let count = 0;
+  return () => {
+    count++;
+    console.log(count);
+  }
+})();
+addCount();
+addCount();
+addCount();   // 3，闭包确实可以解决全局空间污染的问题，但还有更简单的方式
+
+// 还可以用这种方式
+// let addCount1 = function () {
+//   addCount1.count++;
+// }
+// addCount1.count = 0;
+// addCount1();
+// addCount1();
+// addCount1();
+
+// 最后来尝试 TS 的方式
+interface CountInterface {
+  (): void
+  count: number
+}
+let getCounter = (function (): CountInterface {
+  /*
+  CountInterface接口要求数据既要是一个没有参数没有返回值的函数
+                            又要是一个拥有count属性的对象
+  fn作为函数的时候符合接口中函数接口的限定 ():void
+  fn作为对象的时候符合接口中对象属性的限定  count:number
+  * */
+  // 类型断言 
+  let fn = <CountInterface>function () {
+    fn.count++;
+    console.log(fn.count);
+  }
+
+  /* 或者
+    let fn = function () {
+      fn.count++; 
+      console.log(fn.count);
+  } as CountInterface
+  */
+
+  fn.count = 0;
+  return fn;
+})();
+getCounter();
+getCounter();
+getCounter();
+
+// 7，接口继承
+interface LengthInterface {
+  length: number
+}
+
+interface WidthInterface {
+  width: number
+}
+
+interface HeightInterface {
+  height: number
+}
+// 接口可以单继承、也可以多继承
+interface RectInterface extends LengthInterface, WidthInterface, HeightInterface {
+  // length:number
+  // width: number
+  // height: number
+  color: string
+}
+
+const rect: RectInterface = {
+  length: 12,
+  width: 22,
+  height: 43,
+  color: 'red'
+};
+
